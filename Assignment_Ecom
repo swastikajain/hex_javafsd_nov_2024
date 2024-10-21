@@ -1,0 +1,164 @@
+mysql> -- MySQL Workbench Forward Engineering
+mysql>
+mysql>
+mysql>
+mysql> -- -----------------------------------------------------
+mysql> -- Schema datafds
+mysql> -- -----------------------------------------------------
+mysql>
+mysql> -- -----------------------------------------------------
+mysql> -- Schema datafds
+mysql> -- -----------------------------------------------------
+mysql> CREATE SCHEMA IF NOT EXISTS `datafds` DEFAULT CHARACTER SET utf8 ;
+Query OK, 1 row affected, 1 warning (0.01 sec)
+
+mysql> USE `datafds` ;
+Database changed
+mysql>
+mysql> -- -----------------------------------------------------
+mysql> -- Table `datafds`.`user`
+mysql> -- -----------------------------------------------------
+mysql> CREATE TABLE IF NOT EXISTS `datafds`.`user` (
+    ->   `id` INT NOT NULL,
+    ->   `username` VARCHAR(45) NOT NULL,
+    ->   `password` VARCHAR(45) NOT NULL,
+    ->   `role` VARCHAR(45) NOT NULL,
+    ->   PRIMARY KEY (`id`))
+    -> ENGINE = InnoDB;
+Query OK, 0 rows affected (0.04 sec)
+
+mysql>
+mysql>
+mysql> -- -----------------------------------------------------
+mysql> -- Table `datafds`.`Customer`
+mysql> -- -----------------------------------------------------
+mysql> CREATE TABLE IF NOT EXISTS `datafds`.`Customer` (
+    ->   `id` INT NOT NULL,
+    ->   `name` VARCHAR(45) NOT NULL,
+    ->   `contact` VARCHAR(45) NOT NULL,
+    ->   `city` VARCHAR(45) NOT NULL,
+    ->   `user_id` INT NOT NULL,
+    ->   PRIMARY KEY (`id`),
+    ->   INDEX `fk_Customer_user1_idx` (`user_id` ASC) ,
+    ->   CONSTRAINT `fk_Customer_user1`
+    ->     FOREIGN KEY (`user_id`)
+    ->     REFERENCES `datafds`.`user` (`id`)
+    ->     ON DELETE NO ACTION
+    ->     ON UPDATE NO ACTION)
+    -> ENGINE = InnoDB;
+Query OK, 0 rows affected (0.08 sec)
+
+mysql>
+mysql>
+mysql> -- -----------------------------------------------------
+mysql> -- Table `datafds`.`vendor`
+mysql> -- -----------------------------------------------------
+mysql> CREATE TABLE IF NOT EXISTS `datafds`.`vendor` (
+    ->   `id` INT NOT NULL AUTO_INCREMENT,
+    ->   `name` VARCHAR(45) NOT NULL,
+    ->   `city` VARCHAR(45) NOT NULL,
+    ->   `user_id` INT NOT NULL,
+    ->   PRIMARY KEY (`id`),
+    ->   INDEX `fk_vendor_user1_idx` (`user_id` ASC) ,
+    ->   CONSTRAINT `fk_vendor_user1`
+    ->     FOREIGN KEY (`user_id`)
+    ->     REFERENCES `datafds`.`user` (`id`)
+    ->     ON DELETE NO ACTION
+    ->     ON UPDATE NO ACTION)
+    -> ENGINE = InnoDB;
+Query OK, 0 rows affected (0.07 sec)
+
+mysql>
+mysql>
+mysql> -- -----------------------------------------------------
+mysql> -- Table `datafds`.`category`
+mysql> -- -----------------------------------------------------
+mysql> CREATE TABLE IF NOT EXISTS `datafds`.`category` (
+    ->   `id` INT NOT NULL AUTO_INCREMENT,
+    ->   `name` VARCHAR(45) NOT NULL,
+    ->   `sequence` INT NOT NULL,
+    ->   PRIMARY KEY (`id`))
+    -> ENGINE = InnoDB;
+Query OK, 0 rows affected (0.03 sec)
+
+mysql>
+mysql>
+mysql> -- -----------------------------------------------------
+mysql> -- Table `datafds`.`product`
+mysql> -- -----------------------------------------------------
+mysql> CREATE TABLE IF NOT EXISTS `datafds`.`product` (
+    ->   `id` INT NOT NULL AUTO_INCREMENT,
+    ->   `title` VARCHAR(45) NOT NULL,
+    ->   `price` DOUBLE NOT NULL,
+    ->   `description` VARCHAR(225) NOT NULL,
+    ->   `stock_qty` INT NOT NULL,
+    ->   `vendor_id` INT NOT NULL,
+    ->   `category_id` INT NOT NULL,
+    ->   PRIMARY KEY (`id`, `vendor_id`),
+    ->   INDEX `fk_product_vendor_idx` (`vendor_id` ASC) ,
+    ->   INDEX `fk_product_category1_idx` (`category_id` ASC) ,
+    ->   CONSTRAINT `fk_product_vendor`
+    ->     FOREIGN KEY (`vendor_id`)
+    ->     REFERENCES `datafds`.`vendor` (`id`)
+    ->     ON DELETE NO ACTION
+    ->     ON UPDATE NO ACTION,
+    ->   CONSTRAINT `fk_product_category1`
+    ->     FOREIGN KEY (`category_id`)
+    ->     REFERENCES `datafds`.`category` (`id`)
+    ->     ON DELETE NO ACTION
+    ->     ON UPDATE NO ACTION)
+    -> ENGINE = InnoDB;
+Query OK, 0 rows affected (0.06 sec)
+
+mysql>
+mysql>
+mysql> -- -----------------------------------------------------
+mysql> -- Table `datafds`.`review`
+mysql> -- -----------------------------------------------------
+mysql> CREATE TABLE IF NOT EXISTS `datafds`.`review` (
+    ->   `id` INT NOT NULL AUTO_INCREMENT,
+    ->   `message` VARCHAR(225) NOT NULL,
+    ->   `rating` INT NOT NULL,
+    ->   `product_id` INT NOT NULL,
+    ->   `product_vendor_id` INT NOT NULL,
+    ->   `Customer_id` INT NOT NULL,
+    ->   PRIMARY KEY (`id`),
+    ->   INDEX `fk_review_product1_idx` (`product_id` ASC, `product_vendor_id` ASC) ,
+    ->   INDEX `fk_review_Customer1_idx` (`Customer_id` ASC) ,
+    ->   CONSTRAINT `fk_review_product1`
+    ->     FOREIGN KEY (`product_id` , `product_vendor_id`)
+    ->     REFERENCES `datafds`.`product` (`id` , `vendor_id`)
+    ->     ON DELETE NO ACTION
+    ->     ON UPDATE NO ACTION,
+    ->   CONSTRAINT `fk_review_Customer1`
+    ->     FOREIGN KEY (`Customer_id`)
+    ->     REFERENCES `datafds`.`Customer` (`id`)
+    ->     ON DELETE NO ACTION
+    ->     ON UPDATE NO ACTION)
+    -> ENGINE = InnoDB;
+Query OK, 0 rows affected (0.06 sec)
+
+mysql>
+mysql>
+mysql> -- -----------------------------------------------------
+mysql> -- Table `datafds`.`product_has_Customer`
+mysql> -- -----------------------------------------------------
+mysql> CREATE TABLE IF NOT EXISTS `datafds`.`product_has_Customer` (
+    ->   `product_id` INT NOT NULL,
+    ->   `product_vendor_id` INT NOT NULL,
+    ->   `Customer_id` INT NOT NULL,
+    ->   PRIMARY KEY (`product_id`, `product_vendor_id`, `Customer_id`),
+    ->   INDEX `fk_product_has_Customer_Customer1_idx` (`Customer_id` ASC) ,
+    ->   INDEX `fk_product_has_Customer_product1_idx` (`product_id` ASC, `product_vendor_id` ASC) ,
+    ->   CONSTRAINT `fk_product_has_Customer_product1`
+    ->     FOREIGN KEY (`product_id` , `product_vendor_id`)
+    ->     REFERENCES `datafds`.`product` (`id` , `vendor_id`)
+    ->     ON DELETE NO ACTION
+    ->     ON UPDATE NO ACTION,
+    ->   CONSTRAINT `fk_product_has_Customer_Customer1`
+    ->     FOREIGN KEY (`Customer_id`)
+    ->     REFERENCES `datafds`.`Customer` (`id`)
+    ->     ON DELETE NO ACTION
+    ->     ON UPDATE NO ACTION)
+    -> ENGINE = InnoDB;
+Query OK, 0 rows affected (0.05 sec)
